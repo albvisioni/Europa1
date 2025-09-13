@@ -22,12 +22,30 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in (from localStorage)
-    const savedUser = localStorage.getItem('europaUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    // Check if user is logged in and validate token
+    const checkAuth = async () => {
+      const savedUser = localStorage.getItem('europaUser');
+      const token = localStorage.getItem('europaToken');
+      
+      if (savedUser && token) {
+        try {
+          // Verify token with backend
+          const response = await axios.get(`${API}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setUser(response.data);
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          // Clear invalid token/user data
+          localStorage.removeItem('europaUser');
+          localStorage.removeItem('europaToken');
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const handleLogin = async (loginData) => {
