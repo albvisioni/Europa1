@@ -87,6 +87,7 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('europaUser');
+    localStorage.removeItem('europaToken');
     toast.success('Logged out successfully');
   };
 
