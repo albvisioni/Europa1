@@ -48,7 +48,7 @@ async def get_database():
 
 async def create_indexes():
     """Create database indexes for better performance"""
-    if not db_connection.database:
+    if db_connection.database is None:
         return
     
     try:
