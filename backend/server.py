@@ -11,6 +11,10 @@ from database.connection import connect_to_mongo, close_mongo_connection
 
 # Import routes
 from routes.auth import router as auth_router
+from routes.companies import router as companies_router
+from routes.market import router as market_router
+from routes.wars import router as wars_router
+from routes.training import router as training_router
 
 # Import services
 from services.auth_service import auth_service
@@ -49,7 +53,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -72,6 +76,10 @@ async def health_check():
 
 # Include all routers
 api_router.include_router(auth_router)
+api_router.include_router(companies_router)
+api_router.include_router(market_router)
+api_router.include_router(wars_router)
+api_router.include_router(training_router)
 
 # Include the router in the main app
 app.include_router(api_router)
