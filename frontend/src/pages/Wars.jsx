@@ -79,6 +79,18 @@ const Wars = ({ user }) => {
     return { status: 'defensive', color: 'bg-blue-500', textColor: 'text-blue-400' };
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 pt-6">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-white text-xl">Loading wars...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 pt-6">
       <div className="container mx-auto px-4 space-y-6">
