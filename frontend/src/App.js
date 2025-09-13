@@ -32,24 +32,19 @@ function App() {
 
   const handleLogin = async (loginData) => {
     try {
-      // Mock login - in real app this would call backend API
-      const mockUser = {
-        id: 1,
-        name: 'John Doe',
-        email: loginData.email,
-        country: 'Albania',
-        gold: 150,
-        coins: 2500,
-        level: 15,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face'
-      };
+      const response = await axios.post(`${API}/auth/login`, loginData);
+      const { user, access_token } = response.data;
       
-      setUser(mockUser);
-      localStorage.setItem('europaUser', JSON.stringify(mockUser));
-      toast.success('Welcome to Europa!');
+      // Store token and user data
+      localStorage.setItem('europaToken', access_token);
+      localStorage.setItem('europaUser', JSON.stringify(user));
+      
+      setUser(user);
+      toast.success(`Welcome back, ${user.username}!`);
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
+      const errorMessage = error.response?.data?.detail || 'Login failed. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
