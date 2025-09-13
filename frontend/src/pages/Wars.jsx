@@ -248,6 +248,7 @@ const Wars = ({ user }) => {
                     <Button 
                       className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                       size="lg"
+                      onClick={() => handleFight(war.id, 'attacker')}
                     >
                       <Sword className="w-4 h-4 mr-2" />
                       Fight for {war.attacker}
@@ -255,6 +256,7 @@ const Wars = ({ user }) => {
                     <Button 
                       className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                       size="lg"
+                      onClick={() => handleFight(war.id, 'defender')}
                     >
                       <Shield className="w-4 h-4 mr-2" />
                       Defend {war.defender}
