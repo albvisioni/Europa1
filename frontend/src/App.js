@@ -50,24 +50,19 @@ function App() {
 
   const handleRegister = async (registrationData) => {
     try {
-      // Mock registration - in real app this would call backend API
-      const newUser = {
-        id: Date.now(),
-        name: registrationData.username,
-        email: registrationData.email,
-        country: registrationData.country,
-        gold: 50,
-        coins: 1000,
-        level: 1,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face'
-      };
+      const response = await axios.post(`${API}/auth/register`, registrationData);
+      const { user, access_token } = response.data;
       
-      setUser(newUser);
-      localStorage.setItem('europaUser', JSON.stringify(newUser));
-      toast.success(`Welcome to Europa, ${newUser.name}!`);
+      // Store token and user data
+      localStorage.setItem('europaToken', access_token);
+      localStorage.setItem('europaUser', JSON.stringify(user));
+      
+      setUser(user);
+      toast.success(`Welcome to Europa, ${user.username}!`);
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('Registration failed. Please try again.');
+      const errorMessage = error.response?.data?.detail || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
