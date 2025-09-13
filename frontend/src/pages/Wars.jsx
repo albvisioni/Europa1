@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
@@ -15,82 +15,61 @@ import {
   Zap,
   AlertTriangle
 } from 'lucide-react';
+import { warsAPI } from '../utils/api';
+import { toast } from 'sonner';
 
 const Wars = ({ user }) => {
-  const [activeWars, setActiveWars] = useState([
-    {
-      id: 1,
-      attacker: 'Germany',
-      defender: 'France',
-      region: 'Alsace-Lorraine',
-      startTime: '2024-01-15T10:00:00Z',
-      attackerFlag: '🇩🇪',
-      defenderFlag: '🇫🇷',
-      attackerDamage: 2450000,
-      defenderDamage: 1890000,
-      totalDamage: 4340000,
-      participants: 156,
-      timeLeft: '4h 23m',
-      status: 'intense',
-      battleRounds: [
-        { round: 1, winner: 'attacker', damage: 125000 },
-        { round: 2, winner: 'defender', damage: 98000 },
-        { round: 3, winner: 'attacker', damage: 142000 },
-        { round: 4, winner: 'attacker', damage: 156000 }
-      ]
-    },
-    {
-      id: 2,
-      attacker: 'Italy',
-      defender: 'Switzerland',
-      region: 'Ticino',
-      startTime: '2024-01-15T08:30:00Z',
-      attackerFlag: '🇮🇹',
-      defenderFlag: '🇨🇭',
-      attackerDamage: 1230000,
-      defenderDamage: 1890000,
-      totalDamage: 3120000,
-      participants: 89,
-      timeLeft: '2h 15m',
-      status: 'defensive',
-      battleRounds: [
-        { round: 1, winner: 'defender', damage: 89000 },
-        { round: 2, winner: 'defender', damage: 112000 },
-        { round: 3, winner: 'attacker', damage: 87000 },
-        { round: 4, winner: 'defender', damage: 134000 }
-      ]
-    },
-    {
-      id: 3,
-      attacker: 'Spain',
-      defender: 'Portugal',
-      region: 'Porto',
-      startTime: '2024-01-15T12:15:00Z',
-      attackerFlag: '🇪🇸',
-      defenderFlag: '🇵🇹',
-      attackerDamage: 3450000,
-      defenderDamage: 1120000,
-      totalDamage: 4570000,
-      participants: 203,
-      timeLeft: '6h 45m',
-      status: 'overwhelming',
-      battleRounds: [
-        { round: 1, winner: 'attacker', damage: 189000 },
-        { round: 2, winner: 'attacker', damage: 234000 },
-        { round: 3, winner: 'attacker', damage: 198000 },
-        { round: 4, winner: 'attacker', damage: 267000 }
-      ]
-    }
-  ]);
-
+  const [activeWars, setActiveWars] = useState([]);
   const [userStats, setUserStats] = useState({
-    totalDamage: 145230,
-    battlesWon: 23,
-    battlesLost: 8,
-    rank: 'Sergeant',
-    medals: 7,
-    currentStrength: 1250
+    totalDamage: 0,
+    battlesWon: 0,
+    battlesLost: 0,
+    rank: 'Private',
+    medals: 0,
+    currentStrength: 0
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWarsData();
+    fetchUserStats();
+  }, []);
+
+  const fetchWarsData = async () => {
+    try {
+      const response = await warsAPI.getAll();
+      setActiveWars(response.data);
+    } catch (error) {
+      console.error('Error fetching wars:', error);
+      toast.error('Failed to load wars data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await warsAPI.getUserStats();
+      setUserStats(response.data);
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
+  const handleFight = async (warId, side) => {
+    try {
+      const response = await warsAPI.fight(warId, side);
+      toast.success(response.data.message);
+      
+      // Refresh data
+      await fetchWarsData();
+      await fetchUserStats();
+    } catch (error) {
+      console.error('Error fighting in war:', error);
+      const errorMessage = error.response?.data?.detail || 'Failed to join battle';
+      toast.error(errorMessage);
+    }
+  };
 
   const getWarStatus = (war) => {
     const attackerPercentage = (war.attackerDamage / war.totalDamage) * 100;
